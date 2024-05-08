@@ -1,0 +1,95 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = "mongodb+srv://csit314:B2nPpGdzik0VF7GQ@cluster0.rusgro8.mongodb.net/csit314b2?retryWrites=true&w=majority&appName=Cluster0"
+}
+
+model User {
+  id              String              @id @default(auto()) @map("_id") @db.ObjectId
+  profileId       String?             @db.ObjectId
+  email           String              @unique
+  firstName       String
+  lastName        String
+  passwordHash    String
+  country         String
+  phoneNumber     String
+  ceaNumber       String?             @default("")
+  agency          String?             @default("")
+  license         String?             @default("")
+  activated       Boolean             @default(true)
+  ratingAndReview RatingsAndReviews[]
+  shortList       Shortlist[]
+  listing         Listing[]
+  ownership       Ownership[]
+  profile UserProfile? @relation(fields: [profileId], references: [id])
+}
+
+model Property {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  address     String
+  description String
+  onSale      Boolean
+  views       Int?        @default(0)
+  bedroom     Int
+  bathroom    Int
+  leaseYear   Int
+  squareFt    Int
+  builtYear   Int
+  price       Int
+  imageUrl    String
+  activated Boolean @default(true)
+  shortList   Shortlist[]
+  listing     Listing[]
+  ownership   Ownership[]
+}
+
+model RatingsAndReviews {
+  id     String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId String? @db.ObjectId
+  rating Int?    @default(0)
+  review String
+  user   User?   @relation(fields: [userId], references: [id])
+}
+
+// buyer
+model Shortlist {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String?   @db.ObjectId
+  propertyId String    @db.ObjectId
+  user       User?     @relation(fields: [userId], references: [id])
+  property   Property? @relation(fields: [propertyId], references: [id])
+}
+
+// agent
+model Listing {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String?   @db.ObjectId
+  propertyId String    @db.ObjectId
+  user       User?     @relation(fields: [userId], references: [id])
+  property   Property? @relation(fields: [propertyId], references: [id])
+}
+
+model Ownership {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String?   @db.ObjectId
+  propertyId String    @db.ObjectId
+  user       User?     @relation(fields: [userId], references: [id])
+  property   Property? @relation(fields: [propertyId], references: [id])
+}
+
+model UserProfile {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  activated Boolean
+  role      String  @unique
+  user User[]
+}
